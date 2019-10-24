@@ -1,0 +1,30 @@
+#!/usr/bin/expect -f
+
+
+set ipaddr [lindex $argv 0]
+set user [lindex $argv 1]
+set password [lindex $argv 2]
+set protocol [lindex $argv 3]
+
+# now connect to remote UNIX box (ipaddr) with given script to execute
+spawn $protocol $user@$ipaddr
+expect {
+       "(yes/no)?"  { send "yes\r"; exp_continue}
+       "?assword:"  { send "$password\r"; exp_continue}
+
+}
+
+match_max 100000
+
+# Look for passwod prompt
+expect "$*"
+send -- "sudo bash\r"
+#expect "$*"
+#send -- "$password\r"
+expect "$*"
+send -- "echo  "IP=$(ip a | grep 'inet '|   grep -P "(10.10[6-7].|10.45.).* " | head -1 |awk '{ print $2}' | cut -d '/' -f1)" >> ~/.bashrc \r"
+expect "$*"
+send -- "echo  "PS1="\[\033[01;31m\]"$IP" $\[\033[00m\]$PS1 ";" >> ~/.bashrc \r"
+expect "$*"
+send -- "exit\r"
+expect eof
