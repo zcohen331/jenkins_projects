@@ -1,0 +1,21 @@
+#!/usr/bin/expect
+
+
+set ipaddr [lindex $argv 0]
+set user [lindex $argv 1]
+set password [lindex $argv 2]
+set protocol [lindex $argv 3]
+
+spawn $protocol /Utilization/Utilization.ksh $user@$ipaddr:/tmp/Utilization.ksh
+
+match_max 100000
+
+expect {
+       "(yes/no)?"  { send "yes\r"; exp_continue}
+       "?assword:"  { send "$password\r"; exp_continue}
+       "denied"     { exit 1}
+
+       timeout { 
+           exit 1 
+	}
+}
