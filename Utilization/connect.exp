@@ -1,0 +1,24 @@
+#!/usr/bin/expect
+
+
+set ipaddr [lindex $argv 0]
+set user [lindex $argv 1]
+set password [lindex $argv 2]
+set protocol [lindex $argv 3]
+set timeout 30
+
+# now connect to remote UNIX box (ipaddr) with given script to execute
+spawn $protocol $user@$ipaddr
+expect {
+       "(yes/no)?"  { send "yes\r"; exp_continue}
+       "?assword:"  { send "$password\r"; exp_continue}
+
+}
+
+match_max 100000
+
+# Look for passwod prompt
+expect "#*"
+send -- "/tmp/Utilization.ksh\r"
+expect "#*"
+expect eof
